@@ -1,0 +1,58 @@
+{% extends 'Partials/_Base.html' %} 
+{% load static %} 
+{% block Titulo %} 
+{% endblock %} 
+{% block Style %}
+{% endblock %} 
+{% block Content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-bus"></i> Información del bus</div>
+            <div class="card-body">
+                <div class="card-title">
+                    <h3 class="text-center title-2">Formulario</h3>
+                </div>
+                <hr>
+                <form method="post" action="{% url 'agregarBus' %}">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="control-label mb-1">Patente</label>
+                         {{formBus.patente}}
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label mb-1">Modelo</label>
+                         {{formBus.modelo}}
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label mb-1">Color</label>
+                         {{formBus.color}}
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="control-label mb-1">Vencimiento Revisión Técnica</label>
+                                {{formBus.fechaVencimiento}}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="control-label mb-1">Serial GPS</label>
+                                {{formBus.serial}}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="payment-button" type="submit" class="btn btn-lg btn-info btn-block">
+                            <i class="fa fa-bus fa-lg"></i>&nbsp;
+                            <span id="payment-button-amount">Agregar Bus</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
+{% block JavaScript %}
+{% endblock %}

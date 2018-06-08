@@ -1,0 +1,247 @@
+{% extends 'Partials/_Base.html' %} 
+{% load static %}
+{% block Titulo %} 
+{% endblock %} 
+{% block Style %} 
+<link rel="stylesheet" type="text/css" href="{% static 'css/datatables.min.css' %}" />
+<style>
+    .select2-search__field {
+        width: 100% !important;
+    }
+</style>
+{% endblock %} 
+{% block Content %}
+<div class="row">
+    <div class="col">
+        <!-- USER DATA-->
+        <div class="user-data m-b-30">
+            <h3 class="title-3 m-b-30">
+                <i class="fas fa-bus"></i>Buses Agregados
+                <a href="{% url 'agregarBus' %}" class="pull-right">
+                    <button class="btn-sm btn-success"><i class="fas fa-plus"></i>Agregar Bus</button>
+                </a>
+            </h3>
+            <div class="table-responsive">
+                <table class="table table-borderless" id="tableBus">
+                    <thead>
+                        <tr>
+                            <td>Patente</td>
+                            <td>Condutor</td>
+                            <td>Modelo</td>
+                            <td>Color</td>
+                            <td>Estado</td>
+                            <td>Acción</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <!-- END USER DATA-->
+    </div>
+</div>
+<button id="modalWindow" style="display: none" type="button" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#largeModal"></button>
+<button id="modalMap" style="display: none" type="button" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#MapModal"></button>
+{% endblock %} 
+{% block Modal %}
+<div class="modal fade" id="largeModal" tabindex="-1" role="dialog" aria-labelledby="largeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="largeModalLabel">
+                    <i class="fas fa-bus"></i> Posición del bus</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-title">
+                    <h3 class="text-center title-2" id="nombreFormularioModal">Formulario</h3>
+                </div>
+                <hr>
+                <form id="formModal">
+                    <div class="form-group">
+                        <label class="control-label mb-1">Patente</label>
+                        {{formBus.patente}}
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label mb-1">Modelo</label>
+                        {{formBus.modelo}}
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label mb-1">Color</label>
+                        {{formBus.color}}
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="control-label mb-1">Vencimiento Revisión Técnica</label>
+                                {{formBus.fechaVencimiento}}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="control-label mb-1">Serial GPS</label>
+                                {{formBus.serial}}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="payment-button" type="submit" class="btn btn-lg btn-info btn-block">
+                            <i class="fa fa-bus fa-lg"></i>&nbsp;
+                            <span id="payment-button-amount">Editar Bus</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeModal" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="MapModal" tabindex="-1" role="dialog" aria-labelledby="largeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="largeModalLabel"><i class="fas fa-bus"></i> Posición del bus</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3268.753146711473!2d-71.23642084865426!3d-34.987847485335635!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x966457a8d47445a1%3A0x9f73f3e8161c7514!2sJos%C3%A9+Manso+de+Velasco+287%2C+Curic%C3%B3%2C+Regi%C3%B3n+del+Maule!5e0!3m2!1ses!2scl!4v1528498347524"
+                    width="600" height="450" frameborder="0" style="border:0" allowfullscreen></iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeModal" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block JavaScript %} 
+<script type="text/javascript" src="{% static 'vendor/datatable/datatables.min.js' %}"></script>
+<script>
+    var bus;
+    var tablaBus = 
+    $('#tableBus').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+            "url": "{% url 'bus' %}",
+            "type": "POST",
+            "data": {
+                "csrfmiddlewaretoken": getCookie('csrftoken'),
+                "action": 'datatable'
+            },
+        },
+        "columns": [
+            { "data": "Patente" },
+            { "data": "Conductor" },
+            { "data": "Modelo" },
+            { "data": "Color" },
+            { "data": "Estado" },
+            { "data": "Accion" },
+        ],
+        "columnDefs": [{
+                "className": 'text-center',
+                "targets": [5],
+            }],
+        language : {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        },
+        "iDisplayLength": 10,
+    });
+    $('#tableBus_info').addClass('m-b-15');
+    $('#id_serial').prop('disabled', true);
+    $(document).on('click', '.deshabilitar', function(){
+        button = $(this);
+        $.ajax({
+            url: "{% url 'bus' %}",
+            type: "POST",
+            data: {
+                pk: button.parent().data('pk'),
+                action: "deshabilitar",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                tablaBus.row(button.parents().eq(1)).remove().draw();
+            },
+        });
+    });
+    $(document).on('click', '.editar', function(){
+        pk = $(this).parent().data('pk');
+        $.ajax({
+            url: "{% url 'bus' %}",
+            type: "POST",
+            data: {
+                pk: pk,
+                action: "ver_editar",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                bus = pk;
+                $('#nombreFormularioModal').html('Patente del Bus: <b>' + pk + '</b>')
+                $('#id_patente').val(pk);
+                $('#id_conductor').val(data.conductor);
+                $('#id_modelo').val(data.modelo);
+                $('#id_color').val(data.color);
+                $('#id_fechaVencimiento').val(data.fechaVencimiento);
+                $('#id_serial').val(data.serial);
+                $('#modalWindow').trigger('click');
+            },
+        });
+    });
+    $('#formModal').submit(function () {
+        formulario = new FormData();
+        datos = $(this).serializeArray();
+        $.each(datos, function (key, input) {
+            formulario.append(input.name, input.value);
+        });
+        formulario.append('action', 'editar');
+        formulario.append("csrfmiddlewaretoken", getCookie('csrftoken'));
+        formulario.append("pk", bus);
+        $.ajax({
+            url: '{% url "bus" %}',
+            type: 'POST',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: formulario,
+            success: function (data) {
+                if(data.Respuesta){
+                    tablaBus.draw();
+                    $('#closeModal').trigger('click');
+                }else{
+                    
+                }
+            },
+        });
+        return false;
+    })
+    $(document).on('click', '.ver', function(){
+        $('#modalMap').trigger('click');
+    })
+</script>
+{% endblock %}

@@ -347,6 +347,8 @@
                     </div>
                 </div>
             </div>
+            {% block Modal %}
+            {% endblock %}
             <!-- END MAIN CONTENT-->
             <!-- END PAGE CONTAINER-->
         </div>
@@ -358,8 +360,7 @@
     <script src="{% static 'vendor/bootstrap-4.1/popper.min.js' %}"></script>
     <script src="{% static 'vendor/bootstrap-4.1/bootstrap.min.js' %}"></script>
     <!-- Vendor JS       -->
-    <script src="{% static 'vendor/slick/slick.min.js' %}">
-    </script>
+    <script src="{% static 'vendor/slick/slick.min.js' %}"></script>
     <script src="{% static 'vendor/wow/wow.min.js' %}"></script>
     <script src="{% static 'vendor/animsition/animsition.min.js' %}"></script>
     <script src="{% static 'vendor/bootstrap-progressbar/bootstrap-progressbar.min.js' %}">
@@ -370,7 +371,9 @@
     <script src="{% static 'vendor/circle-progress/circle-progress.min.js' %}"></script>
     <script src="{% static 'vendor/perfect-scrollbar/perfect-scrollbar.js' %}"></script>
     <script src="{% static 'vendor/chartjs/Chart.bundle.min.js' %}"></script>
-    <script src="{% static 'vendor/select2/select2.min.js' %}">
+    <script src="{% static 'vendor/select2/select2.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'getCookie.js' %}"></script>
+
     </script>
 
     <!-- Main JS-->
