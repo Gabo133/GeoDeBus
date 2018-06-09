@@ -21,5 +21,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('contend.urls'), name="Contend"),
+    path('login/', include('auth_geodb.urls'), name="login"),
+
 
 ]
