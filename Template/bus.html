@@ -48,7 +48,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="largeModalLabel">
-                    <i class="fas fa-bus"></i> Posición del bus</h5>
+                    <i class="fas fa-bus"></i> Información del bus</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -186,7 +186,22 @@
                 csrfmiddlewaretoken: getCookie('csrftoken'),
             },
             success: function (data) {
-                tablaBus.row(button.parents().eq(1)).remove().draw();
+                tablaBus.draw();
+            },
+        });
+    });
+    $(document).on('click', '.habilitar', function(){
+        button = $(this);
+        $.ajax({
+            url: "{% url 'bus' %}",
+            type: "POST",
+            data: {
+                pk: button.parent().data('pk'),
+                action: "habilitar",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                tablaBus.draw();
             },
         });
     });
