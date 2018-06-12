@@ -1,11 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.urls import reverse
-<<<<<<< HEAD
-from contend.models import Bus, Conductor,Ruta
-=======
-from contend.models import Bus, Conductor, ConductorBus
->>>>>>> origin/Tomas
+from contend.models import Bus, Conductor, ConductorBus,Ruta
 from django.shortcuts import redirect
 from contend.forms import BusForm, SerialGpsForm, EditarBusForm, ConductorForm
 from django.db.models import Q
@@ -16,9 +12,15 @@ from django.contrib.auth.decorators import login_required
 
 @login_required(login_url='/login/login')
 def index(request):
-    template_name = "index.html"
-    data = {}
-    return render(request, template_name, data)
+	conductores_num = Conductor.objects.filter(empresa = request.user.empresa).count()
+	bus_num = Bus.objects.filter(empresa = request.user.empresa).count()
+	bus_num_terreno = Bus.objects.filter(empresa = request.user.empresa,estado=True).count()
+	template_name = "index.html"
+	data = {}
+	data['num_conduc']=conductores_num
+	data['num_bus']=bus_num
+	data['num_bus_terreno']=bus_num_terreno
+	return render(request, template_name, data)
 
 
 @login_required(login_url='/login/login')
@@ -202,6 +204,7 @@ def conductor(request):
     return render(request, template_name, {'formConductor': formConductor})
 
 
+@login_required(login_url='/login/login')
 def agregarConductor(request):
     formConductor = ConductorForm()
     if request.POST:
@@ -221,3 +224,5 @@ def ruta(request):
 	bus = Bus.objects.all()
 	print(bus)
 	return render(request, template_name, {})
+
+
