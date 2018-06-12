@@ -1,17 +1,21 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.urls import reverse
-from contend.models import Bus, Conductor
+from contend.models import Bus, Conductor,Ruta
 from django.shortcuts import redirect
 from contend.forms import BusForm, SerialGpsForm, EditarBusForm
 from django.db.models import Q
+from django.contrib.auth.decorators import login_required
+
 
 # Create your views here.
+@login_required(login_url='/login/login')
 def index(request):
 	template_name = "index.html"
 	data = {}
 	return render(request, template_name, data)
 
+@login_required(login_url='/login/login')
 def bus(request):
 	if request.method == 'POST':
 		if request.POST['action'] == 'datatable':
@@ -73,6 +77,7 @@ def bus(request):
 	formBus = BusForm()
 	return render(request, template_name, {'formBus': formBus})
 
+@login_required(login_url='/login/login')
 def agregarBus(request):
 	formBus = BusForm()
 	if request.POST:
@@ -89,6 +94,7 @@ def agregarBus(request):
 	template_name = 'agregarBus.html'
 	return render(request, template_name, {'formBus': formBus})
 
+@login_required(login_url='/login/login')
 def conductor(request):
 	if request.method == 'POST':
 		if request.POST['action'] == 'datatable':
@@ -129,3 +135,10 @@ def conductor(request):
 			return JsonResponse(json)
 	template_name = 'conductor.html'
 	return render(request, template_name, {})
+
+@login_required(login_url='/login/login')
+def ruta(request):
+	template_name = 'ruta.html'
+	bus = Bus.objects.all()
+	print(bus)
+	return render(request, template_name, {})	

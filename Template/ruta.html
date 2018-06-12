@@ -1,0 +1,67 @@
+
+{% extends 'Partials/_Base.html' %} 
+{% load static %}
+{% block Titulo %} 
+{% endblock %} 
+{% block Style %} 
+<style>
+  #map {
+        height: 500px;
+        width: 500px;
+      }
+</style>
+<link rel="stylesheet" type="text/css" href="{% static 'css/datatables.min.css' %}" />
+{% endblock %} 
+{% block Content %}
+
+    <div id="map">hola</div>
+{% endblock %} 
+{% block JavaScript %} 
+    <script>
+      function initMap() {
+        var myLatlng = {lat: -33.611039, lng: -70.718683};
+        var myLatlng2 = {lat: -33.612229, lng: -70.718683};
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 8,
+          center: myLatlng
+        });
+
+        var marker = new google.maps.Marker({
+          position: myLatlng,
+          map: map,
+          title: 'Click to zoom'
+        });
+        var marker2 = new google.maps.Marker({
+          position: myLatlng2,
+          map: map,
+          title: 'Click to zoom2'
+        });
+
+        // map.addListener('center_changed', function() {
+        //   // 3 seconds after the center of the map has changed, pan back to the
+        //   // marker.
+        //   window.setTimeout(function() {
+        //     map.panTo(marker.getPosition());
+        //     map.panTo(marker2.getPosition());
+
+        //   }, 3000);
+        // });
+
+        marker.addListener('click', function() {
+          map.setZoom(8);
+          map.setCenter(marker.getPosition());
+        });
+        marker2.addListener('click', function() {
+          map.setZoom(8);
+          map.setCenter(marker.getPosition());
+        });
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDDWNKzllkFkkJdm6JeA5iAWK9rpZUZr2Q&callback=initMap">
+
+    </script>
+    
+<script type="text/javascript" src="{% static 'vendor/datatable/datatables.min.js' %}"></script>
+{% endblock %}

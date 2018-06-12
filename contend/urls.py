@@ -9,4 +9,5 @@ urlpatterns = [
     path('bus', views.bus, name="bus"),
     path('agregarBus', views.agregarBus, name="agregarBus"),
     path('conductor', views.conductor, name="conductor"),
+    path('ruta', views.ruta, name="ruta"),
 ]

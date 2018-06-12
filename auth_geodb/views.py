@@ -22,6 +22,7 @@ def auth_login(request):
         )
         if user is not None:
             if user.is_active:
+                print("logeado")
                 login(request, user)
                 return HttpResponseRedirect(reverse('index'))
             else:
@@ -42,4 +43,4 @@ def auth_login(request):
 
 def auth_logout(request):
     logout(request)
-    return HttpResponseRedirect(reverse('index'))
+    return HttpResponseRedirect(reverse('auth_login'))
