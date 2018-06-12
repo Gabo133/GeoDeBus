@@ -1,5 +1,5 @@
 from django import forms
-from contend.models import Bus, Gps, Conductor
+from contend.models import Bus, Gps, Conductor, Ruta
 
 
 class BusForm(forms.ModelForm):
@@ -50,3 +50,12 @@ class ConductorForm(forms.ModelForm):
             'fechaVencimiento': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Fecha de vencimiento de lincencia de conducir'}),
         }
         exclude = ['habilitado', 'empresa']
+
+
+class RutaForm(forms.ModelForm):
+    class Meta:
+        model = Ruta
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Nombre de la ruta'}),
+        }
+        exclude = ['habilitado']

@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.urls import reverse
-from contend.models import Bus, Conductor, ConductorBus
+from contend.models import Bus, Conductor, ConductorBus, Ruta, Calle
 from django.shortcuts import redirect
-from contend.forms import BusForm, SerialGpsForm, EditarBusForm, ConductorForm
+from contend.forms import BusForm, SerialGpsForm, EditarBusForm, ConductorForm, RutaForm
 from django.db.models import Q
+import ast
+from django.contrib.auth.models import Group, User
 
 # Create your views here.
 
@@ -20,10 +22,10 @@ def bus(request):
         if request.POST['action'] == 'datatable':
             data = []
             if request.POST['search[value]'] == '':
-                query = Bus.objects.filter(eliminado=False)[int(request.POST['start']):int(
+                query = Bus.objects.all()[int(request.POST['start']):int(
                     request.POST['start']) + int(request.POST['length'])]
-                json = {"recordsTotal": Bus.objects.filter(habilitado=True).count(),
-                        "recordsFiltered": Bus.objects.filter(habilitado=True).count()}
+                json = {"recordsTotal": Bus.objects.all().count(),
+                        "recordsFiltered": Bus.objects.all().count()}
             else:
                 query = Bus.objects.filter(Q(patente__icontains=request.POST['search[value]']) |
                                            Q(modelo__icontains=request.POST['search[value]']) |
@@ -61,7 +63,7 @@ def bus(request):
             busObj.save()
             return JsonResponse({})
         elif request.POST['action'] == 'habilitar':
-            busObj = Bus.objects.get(pk=request.POST['pk']).setHabilitado(True)
+            Bus.objects.get(pk=request.POST['pk']).setHabilitado(True)
             return JsonResponse({})
         elif request.POST['action'] == 'ver_editar':
             busObj = Bus.objects.get(pk=request.POST['pk'])
@@ -138,7 +140,7 @@ def conductor(request):
                              'Accion': '<div data-pk=' + str(x.pk) + '>\
                                             <button class="btn-sm btn-primary mr-1 editar">Editar</button> \
                                             <button class="btn-sm btn-warning mr-2 asignar">Asignar Bus</button>'
-                                            + habilitado + 
+                                            + habilitado +
                                         '</div>'
                              })
             json['data'] = data
@@ -205,3 +207,64 @@ def agregarConductor(request):
 
     template_name = 'agregarConductor.html'
     return render(request, template_name, {'formConductor': formConductor})
+
+
+def ruta(request):
+    if request.method == 'POST':
+        if request.POST['action'] == 'datatable':
+            data = []
+            if request.POST['search[value]'] == '':
+                query = Ruta.objects.all()[int(request.POST['start']):int(
+                    request.POST['start']) + int(request.POST['length'])]
+                json = {"recordsTotal": Ruta.objects.all().count(),
+                        "recordsFiltered": Ruta.objects.all().count()}
+            else:
+                query = Ruta.objects.filter(Q(nombre__icontains=request.POST['search[value]']))
+                json = {"recordsTotal": query.count(),
+                        "recordsFiltered": query.count()}
+            for x in query:
+                habilitado = '<button class="btn-sm btn-warning habilitar">Habilitar</button>'
+                if x.habilitado:
+                    habilitado = '<button class="btn-sm btn-danger deshabilitar">Deshabilitar</button>'
+                data.append({'Nombre': x.nombre,
+                             'Buses': 'Total: ' + str(x.busruta_set.all().count()) + ' Bus(es)',
+                             'Accion': '<div data-pk=' + str(x.pk) + '>\
+                                            <button class="btn-sm btn-success ver mr-1">Ver Ruta</button> \
+                                            <button class="btn-sm btn-primary editar mr-2">Editar</button>'
+                                            + habilitado + \
+                                        '</div>'
+                             })
+            json['data'] = data
+            return JsonResponse(json)
+        elif request.POST['action'] == 'deshabilitar':
+            Ruta.objects.get(pk=request.POST['pk']).setHabilitado(False)
+            return JsonResponse({})
+        elif request.POST['action'] == 'habilitar':
+            Ruta.objects.get(pk=request.POST['pk']).setHabilitado(True)
+            return JsonResponse({})
+        elif request.POST['action'] == 'cargarRuta':
+            calles = Ruta.objects.get(pk=request.POST['pk']).calle_set.all()
+            posiciones = []
+            for x in calles:
+                posiciones.append({'lat': x.lat, 'lng': x.lng})
+            return JsonResponse({'posiciones': posiciones})
+    template_name = 'ruta.html'
+    return render(request, template_name, {})
+
+
+def agregarRuta(request):
+    if request.POST:
+        calleInicial = request.POST.getlist('calle[]')[0]
+        calleFinal = request.POST.getlist('calle[]')[-1]
+        calleInicial = calleInicial.split(',')
+        calleFinal = calleFinal.split(',')
+        calleInicial = [float(calleInicial[0]), float(calleInicial[1])]
+        calleFinal = [float(calleFinal[0]), float(calleFinal[1])]
+        rutaObj = Ruta.objects.create(nombre=request.POST['nombre'], latInicial=calleInicial[0], lngInicial=calleInicial[1], latFinal=calleFinal[0], lngFinal=calleFinal[1])
+        for x in request.POST.getlist('calle[]'):
+            coordenadas = x.split(',')
+            rutaObj.addCalle(coordenadas[0], coordenadas[1])
+        return JsonResponse({})
+    template_name = 'agregarRuta.html'
+    formRuta = RutaForm()
+    return render(request, template_name, {'formRuta': formRuta})

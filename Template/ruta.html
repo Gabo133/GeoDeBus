@@ -1,0 +1,311 @@
+{% extends 'Partials/_Base.html' %}
+{% load static %}
+{% block Titulo %}
+{% endblock %}
+{% block Style %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/datatables.min.css' %}" />
+<style>
+    .select2-search__field {
+        width: 100% !important;
+    }
+    #map {
+      height: 500px;
+    }
+</style>
+{% endblock %}
+{% block Content %}
+<div class="row">
+    <div class="col">
+        <!-- USER DATA-->
+        <div class="user-data m-b-30">
+            <h3 class="title-3 m-b-30">
+                <i class="fas fa-tachometer-alt"></i>Rutas Agregadas
+                <a href="{% url 'agregarRuta' %}" class="pull-right">
+                    <button class="btn-sm btn-success"><i class="fas fa-plus"></i>Agregar Ruta</button>
+                </a>
+            </h3>
+            <div class="table-responsive">
+                <table class="table table-borderless" id="tableConductor">
+                    <thead>
+                        <tr>
+                            <td>Rut</td>
+                            <td>Bus(es) Asignado(s)</td>
+                            <td>Acción</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <!-- END USER DATA-->
+    </div>
+</div>
+<button id="modalMap" style="display: none" type="button" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#MapModal"></button>
+{% endblock %}
+{% block Modal %}
+<div class="modal fade" id="MapModal" tabindex="-1" role="dialog" aria-labelledby="largeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="largeModalLabel"><i class="fas fa-bus"></i> Posición del bus</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="map"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeModal" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block JavaScript %}
+<script type="text/javascript" src="{% static 'vendor/datatable/datatables.min.js' %}"></script>
+<script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDDWNKzllkFkkJdm6JeA5iAWK9rpZUZr2Q&callback=initMap%22%3E"></script>
+<script src="{% static 'vendor/select2/select2.min.js' %}"></script>
+<script>
+    var conductor;
+    var map;
+    var tablaRuta =
+    $('#tableConductor').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+            "url": "{% url 'ruta' %}",
+            "type": "POST",
+            "data": {
+                "csrfmiddlewaretoken": getCookie('csrftoken'),
+                "action": 'datatable'
+            },
+        },
+        "columns": [
+            { "data": "Nombre" },
+            { "data": "Buses" },
+            { "data": "Accion" },
+        ],
+        "columnDefs": [{
+                "className": 'text-center',
+                "targets": [2],
+            }],
+        language : {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        },
+        "iDisplayLength": 10,
+    });
+    $('#tableConductor_wrapper').addClass('m-b-15');
+    $('#id_serial').prop('disabled', true);
+    $(document).on('click', '.deshabilitar', function () {
+        button = $(this);
+        $.ajax({
+            url: "{% url 'ruta' %}",
+            type: "POST",
+            data: {
+                pk: button.parent().data('pk'),
+                action: "deshabilitar",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                tablaRuta.draw();
+            },
+        });
+    });
+    $(document).on('click', '.habilitar', function () {
+        button = $(this);
+        $.ajax({
+            url: "{% url 'ruta' %}",
+            type: "POST",
+            data: {
+                pk: button.parent().data('pk'),
+                action: "habilitar",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                tablaRuta.draw();
+            },
+        });
+    });
+    $(document).on('click', '.editar', function(){
+        pk = $(this).parent().data('pk');
+        $.ajax({
+            url: "{% url 'conductor' %}",
+            type: "POST",
+            data: {
+                pk: pk,
+                action: "ver_editar",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                conductor = pk;
+                $('#nombreFormularioModal').html('Rut/Nombre del conductor: <b>' + data.rut + '-' + data.dv + '/' + data.nombre + ' ' + data.apellido + '</b>')
+                $('#id_nombre').val(data.nombre);
+                $('#id_apellido').val(data.apellido);
+                $('#id_rut').val(data.rut);
+                $('#id_dv').val(data.dv);
+                $('#id_fechaVencimiento').val(data.fechaVencimiento);
+                $('#id_direccion').val(data.direccion);
+                $('#id_telefono').val(data.telefono);
+                $('#id_fechaNacimiento').val(data.fechaNacimiento);
+                $('#modalWindow').trigger('click');
+            },
+        });
+    });
+    $(document).on('click', '.asignar', function(){
+        pk = $(this).parent().data('pk');
+        $.ajax({
+            url: "{% url 'conductor' %}",
+            type: "POST",
+            data: {
+                pk : pk,
+                action: "cargarBus",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                conductor = pk;
+                $('#selectBus').empty().trigger('change');
+                $('#selectBus').select2({
+                    placeholder: "Selecciona un bus",
+                    data: data.buses,
+                });
+                $('#selectBus').val([data.seleccionado[0], data.seleccionado[1]]).trigger('change');
+                $('#modalAsignar').trigger('click');
+            },
+        });
+    })
+    $(document).on('click', '.ver', function(){
+      $('#modalMap').trigger('click');
+      pk = $(this).parent().data('pk');
+      $.ajax({
+          url: "{% url 'ruta' %}",
+          type: "POST",
+          data: {
+              pk : pk,
+              action: "cargarRuta",
+              csrfmiddlewaretoken: getCookie('csrftoken'),
+          },
+          success: function (data) {
+            // for (var i = 0; i < data.posiciones.length; i++) {
+            //   addPoint(data.posiciones[i].lat, data.posiciones[i].lng);
+            // }
+            var map = new google.maps.Map(document.getElementById('map'), {
+              zoom: 16,
+              center: {lat: -33.611039, lng: -70.718683},
+              mapTypeId: 'terrain'
+            });
+            var flightPath = new google.maps.Polyline({
+              path: data.posiciones,
+              geodesic: true,
+              strokeColor: '#FF0000',
+              strokeOpacity: 1.0,
+              strokeWeight: 2
+            });
+
+            flightPath.setMap(map);
+            var marker = new google.maps.Marker({
+              position: data.posiciones[0],
+              map: map,
+              // label: { color: 'black', fontWeight: 'bold', fontSize: '14px', text: 'Inicio' }
+              label: 'Inicio'
+            });
+            var marker = new google.maps.Marker({
+              position: data.posiciones[data.posiciones.length - 1],
+              map: map,
+              // label: { color: 'black', fontWeight: 'bold', fontSize: '14px', text: 'Fin' }
+              label: 'Fin'
+            });
+          },
+      });
+    })
+    $('#asignarBus').on('click', function(){
+        $.ajax({
+            url: "{% url 'conductor' %}",
+            type: "POST",
+            data: {
+                pk: pk,
+                pkBus: $('#selectBus').val(),
+                action: "asignarBus",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                $('#AsignarModal').trigger('click');
+                tablaRuta.draw();
+            },
+        });
+    })
+    $('#formModal').submit(function () {
+        formulario = new FormData();
+        datos = $(this).serializeArray();
+        $.each(datos, function (key, input) {
+            formulario.append(input.name, input.value);
+        });
+        formulario.append('action', 'editar');
+        formulario.append("csrfmiddlewaretoken", getCookie('csrftoken'));
+        formulario.append("pk", conductor);
+        $.ajax({
+            url: '{% url "conductor" %}',
+            type: 'POST',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: formulario,
+            success: function (data) {
+                if(data.Respuesta){
+                    tablaRuta.draw();
+                    $('#closeModal').trigger('click');
+                }else{
+
+                }
+            },
+        });
+        return false;
+    })
+    // function initialize() {
+    //     var mapOptions = {
+    //         zoom: 16,
+    //         center: new google.maps.LatLng(-33.611039, -70.718683),
+    //         mapTypeId: google.maps.MapTypeId.TERRAIN
+    //     };
+    //     map = new google.maps.Map(document.getElementById('map'),
+    //         mapOptions);
+    //     polyline = new google.maps.Polyline({
+    //         strokeColor: 'red',
+    //         strokeWeight: 1,
+    //         map: map
+    //     });
+    //   }
+    //   function addPoint(lat, lng) {
+    //       markers = new Array();
+    //       marker = new google.maps.Marker({
+    //           position: {'lat': lat, 'lng': lng},
+    //           map: map
+    //       });
+    //       polyline.getPath().setAt(markers.length - 1, {'lat': lat, 'lng': lng});
+    //       google.maps.event.addListener(marker, 'click', function (event) {
+    //           removePoint(marker);
+    //       });
+    //   }
+    // initialize();
+</script>
+{% endblock %}

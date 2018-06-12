@@ -66,7 +66,6 @@ class Bus(models.Model):
     fechaVencimiento = models.DateField()
     estado = models.BooleanField(default=False)
     habilitado = models.BooleanField(default=True)
-    eliminado = models.BooleanField(default=False)
 
     def getRelacionConBus(self):
         try:
@@ -103,12 +102,20 @@ class Ruta(models.Model):
     lngInicial = models.FloatField()
     latFinal = models.FloatField()
     lngFinal = models.FloatField()
+    habilitado = models.BooleanField(default=True)
+
+    def setHabilitado(self, habilitado):
+        self.habilitado = habilitado
+        self.save()
+
+    def addCalle(self, lat, lng):
+        return Calle.objects.create(ruta=self, lat=float(lat), lng=float(lng))
+
+    def __str__(self):
+        return "Nombre: %s, LatIni: %s, LngIni: %s, LatFinal: %s, LngFinal: %s" % (self.nombre, self.latInicial, self.lngInicial, self.latFinal, self.lngFinal)
 
 
 class Calle(models.Model):
     ruta = models.ForeignKey("Ruta", on_delete=models.CASCADE)
-    nombre = models.CharField(max_length=50)
-    latInicial = models.FloatField()
-    lngInicial = models.FloatField()
-    latFinal = models.FloatField()
-    lngFinal = models.FloatField()
+    lat = models.FloatField()
+    lng = models.FloatField()
