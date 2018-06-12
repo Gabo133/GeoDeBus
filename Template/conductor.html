@@ -17,7 +17,7 @@
         <div class="user-data m-b-30">
             <h3 class="title-3 m-b-30">
                 <i class="fas fa-user"></i>Conductores Agregados
-                <a href="{% url 'agregarBus' %}" class="pull-right">
+                <a href="{% url 'agregarConductor' %}" class="pull-right">
                     <button class="btn-sm btn-success"><i class="fas fa-plus"></i>Agregar Conductor</button>
                 </a>
             </h3>
@@ -28,7 +28,7 @@
                             <td>Rut</td>
                             <td>Nombre - Apellido</td>
                             <td>Teléfono</td>
-                            <td>Bus(es) designado(s)</td>
+                            <td>Bus designado</td>
                             <td>Estado</td>
                             <td>Acción</td>
                         </tr>
@@ -41,6 +41,7 @@
 </div>
 <button id="modalWindow" style="display: none" type="button" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#largeModal"></button>
 <button id="modalMap" style="display: none" type="button" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#MapModal"></button>
+<button id="modalAsignar" style="display: none" type="button" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#AsignarModal"></button>
 {% endblock %} 
 {% block Modal %}
 <div class="modal fade" id="largeModal" tabindex="-1" role="dialog" aria-labelledby="largeModalLabel" aria-hidden="true">
@@ -48,7 +49,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="largeModalLabel">
-                    <i class="fas fa-bus"></i> Posición del bus</h5>
+                    <i class="fas fa-user"></i> Información del conductor</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -59,36 +60,64 @@
                 </div>
                 <hr>
                 <form id="formModal">
-                    <div class="form-group">
-                        <label class="control-label mb-1">Patente</label>
-                        {{formBus.patente}}
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label mb-1">Modelo</label>
-                        {{formBus.modelo}}
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label mb-1">Color</label>
-                        {{formBus.color}}
-                    </div>
                     <div class="row">
                         <div class="col-6">
                             <div class="form-group">
-                                <label class="control-label mb-1">Vencimiento Revisión Técnica</label>
-                                {{formBus.fechaVencimiento}}
+                                <label class="control-label mb-1">Nombre</label>
+                                {{formConductor.nombre}}
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group">
-                                <label class="control-label mb-1">Serial GPS</label>
-                                {{formBus.serial}}
+                                <label class="control-label mb-1">Apellido</label>
+                                {{formConductor.apellido}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label class="control-label mb-1">Rut</label>
+                                {{formConductor.rut}}
+                            </div>
+                        </div>
+                        <div class="col-2">
+                            <div class="form-group">
+                                <label class="control-label mb-1">Dv</label>
+                                {{formConductor.dv}}
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="control-label mb-1">Fecha Nacimiento</label>
+                                {{formConductor.fechaNacimiento}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label class="control-label mb-1">Dirección</label>
+                                {{formConductor.direccion}}
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label class="control-label mb-1">Teléfono</label>
+                                {{formConductor.telefono}}
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-group">
+                                <label class="control-label mb-1">Teléfono</label>
+                                {{formConductor.fechaVencimiento}}
                             </div>
                         </div>
                     </div>
                     <div>
                         <button id="payment-button" type="submit" class="btn btn-lg btn-info btn-block">
-                            <i class="fa fa-bus fa-lg"></i>&nbsp;
-                            <span id="payment-button-amount">Editar Bus</span>
+                            <i class="fa fa-user fa-lg"></i>&nbsp;
+                            <span id="payment-button-amount">Editar Conductor</span>
                         </button>
                     </div>
                 </form>
@@ -111,6 +140,28 @@
             <div class="modal-body text-center">
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3268.753146711473!2d-71.23642084865426!3d-34.987847485335635!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x966457a8d47445a1%3A0x9f73f3e8161c7514!2sJos%C3%A9+Manso+de+Velasco+287%2C+Curic%C3%B3%2C+Regi%C3%B3n+del+Maule!5e0!3m2!1ses!2scl!4v1528498347524"
                     width="600" height="450" frameborder="0" style="border:0" allowfullscreen></iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeModal" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="AsignarModal" tabindex="-1" role="dialog" aria-labelledby="largeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="largeModalLabel"><i class="fas fa-bus"></i> Asignar bus</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="form-group">
+                    <label for="">Seleccionar Bus</label>
+                    <select id="selectBus" class="form-control"></select>
+                </div>
+                <button id="asignarBus" class="btn btn-success" type="button">Asignar Bus</button>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" id="closeModal" data-dismiss="modal">Cerrar</button>
@@ -176,10 +227,10 @@
     });
     $('#tableConductor_wrapper').addClass('m-b-15');
     $('#id_serial').prop('disabled', true);
-    $(document).on('click', '.deshabilitar', function(){
+    $(document).on('click', '.deshabilitar', function () {
         button = $(this);
         $.ajax({
-            url: "{% url 'bus' %}",
+            url: "{% url 'conductor' %}",
             type: "POST",
             data: {
                 pk: button.parent().data('pk'),
@@ -187,14 +238,29 @@
                 csrfmiddlewaretoken: getCookie('csrftoken'),
             },
             success: function (data) {
-                tablaBus.row(button.parents().eq(1)).remove().draw();
+                tablaConductor.draw();
+            },
+        });
+    });
+    $(document).on('click', '.habilitar', function () {
+        button = $(this);
+        $.ajax({
+            url: "{% url 'conductor' %}",
+            type: "POST",
+            data: {
+                pk: button.parent().data('pk'),
+                action: "habilitar",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                tablaConductor.draw();
             },
         });
     });
     $(document).on('click', '.editar', function(){
         pk = $(this).parent().data('pk');
         $.ajax({
-            url: "{% url 'bus' %}",
+            url: "{% url 'conductor' %}",
             type: "POST",
             data: {
                 pk: pk,
@@ -202,18 +268,58 @@
                 csrfmiddlewaretoken: getCookie('csrftoken'),
             },
             success: function (data) {
-                bus = pk;
-                $('#nombreFormularioModal').html('Patente del Bus: <b>' + pk + '</b>')
-                $('#id_patente').val(pk);
-                $('#id_conductor').val(data.conductor);
-                $('#id_modelo').val(data.modelo);
-                $('#id_color').val(data.color);
+                conductor = pk;
+                $('#nombreFormularioModal').html('Rut/Nombre del conductor: <b>' + data.rut + '-' + data.dv + '/' + data.nombre + ' ' + data.apellido + '</b>')
+                $('#id_nombre').val(data.nombre);
+                $('#id_apellido').val(data.apellido);
+                $('#id_rut').val(data.rut);
+                $('#id_dv').val(data.dv);
                 $('#id_fechaVencimiento').val(data.fechaVencimiento);
-                $('#id_serial').val(data.serial);
+                $('#id_direccion').val(data.direccion);
+                $('#id_telefono').val(data.telefono);
+                $('#id_fechaNacimiento').val(data.fechaNacimiento);
                 $('#modalWindow').trigger('click');
             },
         });
     });
+    $(document).on('click', '.asignar', function(){
+        pk = $(this).parent().data('pk');
+        $.ajax({
+            url: "{% url 'conductor' %}",
+            type: "POST",
+            data: {
+                pk : pk,
+                action: "cargarBus",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                conductor = pk;
+                $('#selectBus').empty().trigger('change');
+                $('#selectBus').select2({
+                    placeholder: "Selecciona un bus",
+                    data: data.buses,
+                });                
+                $('#selectBus').val([data.seleccionado[0], data.seleccionado[1]]).trigger('change');
+                $('#modalAsignar').trigger('click');
+            },
+        });
+    })
+    $('#asignarBus').on('click', function(){
+        $.ajax({
+            url: "{% url 'conductor' %}",
+            type: "POST",
+            data: {
+                pk: pk,
+                pkBus: $('#selectBus').val(),
+                action: "asignarBus",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                $('#AsignarModal').trigger('click');
+                tablaConductor.draw();
+            },
+        });
+    })
     $('#formModal').submit(function () {
         formulario = new FormData();
         datos = $(this).serializeArray();
@@ -222,9 +328,9 @@
         });
         formulario.append('action', 'editar');
         formulario.append("csrfmiddlewaretoken", getCookie('csrftoken'));
-        formulario.append("pk", bus);
+        formulario.append("pk", conductor);
         $.ajax({
-            url: '{% url "bus" %}',
+            url: '{% url "conductor" %}',
             type: 'POST',
             cache: false,
             contentType: false,
@@ -232,7 +338,7 @@
             data: formulario,
             success: function (data) {
                 if(data.Respuesta){
-                    tablaBus.draw();
+                    tablaConductor.draw();
                     $('#closeModal').trigger('click');
                 }else{
                     
