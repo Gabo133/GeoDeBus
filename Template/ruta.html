@@ -11,6 +11,18 @@
     #map {
       height: 500px;
     }
+    .modal-dialog {
+        min-height: calc(100vh - 60px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow: auto;
+    }
+    @media(max-width: 768px) {
+        .modal-dialog {
+            min-height: calc(100vh - 20px);
+        }
+    }
 </style>
 {% endblock %}
 {% block Content %}
@@ -46,7 +58,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="largeModalLabel"><i class="fas fa-bus"></i> Posición del bus</h5>
+                <h5 class="modal-title" id="largeModalLabel"><i class="fas fa-tachometer-alt"></i> Ruta</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -172,28 +184,6 @@
             },
         });
     });
-    $(document).on('click', '.asignar', function(){
-        pk = $(this).parent().data('pk');
-        $.ajax({
-            url: "{% url 'conductor' %}",
-            type: "POST",
-            data: {
-                pk : pk,
-                action: "cargarBus",
-                csrfmiddlewaretoken: getCookie('csrftoken'),
-            },
-            success: function (data) {
-                conductor = pk;
-                $('#selectBus').empty().trigger('change');
-                $('#selectBus').select2({
-                    placeholder: "Selecciona un bus",
-                    data: data.buses,
-                });
-                $('#selectBus').val([data.seleccionado[0], data.seleccionado[1]]).trigger('change');
-                $('#modalAsignar').trigger('click');
-            },
-        });
-    })
     $(document).on('click', '.ver', function(){
       $('#modalMap').trigger('click');
       pk = $(this).parent().data('pk');
@@ -210,7 +200,7 @@
             //   addPoint(data.posiciones[i].lat, data.posiciones[i].lng);
             // }
             var map = new google.maps.Map(document.getElementById('map'), {
-              zoom: 15,
+              zoom: 13,
               center: data.posiciones[0],
               mapTypeId: 'terrain'
             });
@@ -281,31 +271,5 @@
         });
         return false;
     })
-    // function initialize() {
-    //     var mapOptions = {
-    //         zoom: 16,
-    //         center: new google.maps.LatLng(-33.611039, -70.718683),
-    //         mapTypeId: google.maps.MapTypeId.TERRAIN
-    //     };
-    //     map = new google.maps.Map(document.getElementById('map'),
-    //         mapOptions);
-    //     polyline = new google.maps.Polyline({
-    //         strokeColor: 'red',
-    //         strokeWeight: 1,
-    //         map: map
-    //     });
-    //   }
-    //   function addPoint(lat, lng) {
-    //       markers = new Array();
-    //       marker = new google.maps.Marker({
-    //           position: {'lat': lat, 'lng': lng},
-    //           map: map
-    //       });
-    //       polyline.getPath().setAt(markers.length - 1, {'lat': lat, 'lng': lng});
-    //       google.maps.event.addListener(marker, 'click', function (event) {
-    //           removePoint(marker);
-    //       });
-    //   }
-    // initialize();
 </script>
 {% endblock %}

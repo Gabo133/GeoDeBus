@@ -17,28 +17,36 @@
                 <form method="post" action="{% url 'agregarBus' %}">
                     {% csrf_token %}
                     <div class="form-group">
-                        <label class="control-label mb-1">Patente</label>
+                        <label class="control-label mb-1"><b>Patente</b></label>
                          {{formBus.patente}}
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label mb-1">Modelo</label>
-                         {{formBus.modelo}}
-                    </div>
-                    <div class="form-group">
-                        <label class="control-label mb-1">Color</label>
-                         {{formBus.color}}
                     </div>
                     <div class="row">
                         <div class="col-6">
                             <div class="form-group">
-                                <label class="control-label mb-1">Vencimiento Revisión Técnica</label>
-                                {{formBus.fechaVencimiento}}
+                                <label class="control-label mb-1"><b>Modelo</b></label>
+                                {{formBus.modelo}}
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group">
-                                <label class="control-label mb-1">Serial GPS</label>
+                                <label class="control-label mb-1"><b>Color</b></label>
+                                {{formBus.color}}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="control-label mb-1"><b>Vencimiento Revisión Técnica</b></label>
+                                {{formBus.fechaVencimiento}}
+                                 <small class="form-text text-muted"><span class="red">{{formBus.errors.fechaVencimiento.as_text }}</span>&nbspAño-Mes-Dia</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="form-group">
+                                <label class="control-label mb-1"><b>Serial GPS</b> </label>
                                 {{formBus.serial}}
+                                <small class="form-text text-muted"><span class="red">{{formSerialGps.errors.serial.as_text }}</span></small>
                             </div>
                         </div>
                     </div>
@@ -55,4 +63,8 @@
 </div>
 {% endblock %} 
 {% block JavaScript %}
+<script src="{% static 'vendor/mask/dist/jquery.mask.min.js' %}"></script>
+<script>
+    $('#id_fechaVencimiento').mask("9999-99-99", { placeholder: 'YYYY-MM-DD' });
+</script>
 {% endblock %}

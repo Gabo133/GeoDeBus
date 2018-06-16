@@ -1,5 +1,6 @@
 {% extends 'Partials/_Base.html' %}
 {% load static %}
+{% load l10n %}
 {% block Titulo %}
 {% endblock %}
 {% block Style %}
@@ -30,7 +31,7 @@
                             <li>Se recomienda agregar puntos por cada una de las calles que utiliza la ruta.</li>
                         </ul>
                         <button class="btn btn-warning" type="button" id="REC">Eliminar último camino</button>
-                        <button class="btn btn-success" type="submit" id="Add">Agregar Ruta</button>
+                        <button class="btn btn-success" type="submit" id="Add">Editar Ruta</button>
                       </div>
                     </form>
                 </div>
@@ -50,15 +51,16 @@
       removePoint(markers[markers.length - 1]);
   });
   $('#formRuta').submit(function(){
+      console.log("aaa");
+      
     if (listaCalle.length < 2){
         alert("Debe colocar dos puntos como mínimo");
         return false;
     } 
     $.ajax({
-        url: "{% url 'agregarRuta' %}",
+        url: "{% url 'editarRuta' ruta.pk %}",
         type: "POST",
         data: {
-            'action': "addCalle",
             'nombre': $('#id_nombre').val(),
             'calle[]': listaCalle,
             'csrfmiddlewaretoken': getCookie('csrftoken'),
@@ -72,7 +74,7 @@
   function initialize() {
       var mapOptions = {
           zoom: 12,
-          center: new google.maps.LatLng(-33.448890, -70.669265),
+          center: new google.maps.LatLng({{ini| unlocalize}},{{fin| unlocalize}}),
           mapTypeId: google.maps.MapTypeId.TERRAIN
       };
       map = new google.maps.Map(document.getElementById('map'),
@@ -109,6 +111,24 @@
           removePoint(marker);
       });
   }
+  function addPointDjango(latlng) {
+        var marker = new google.maps.Marker({
+            position: latlng,
+            map: map
+        });
+        markers.push(marker);
+        listaCalle.push([latlng.lat, latlng.lng]);
+        polyline.getPath().setAt(markers.length - 1, latlng);
+        google.maps.event.addListener(marker, 'click', function (event) {
+            removePoint(marker);
+        });
+    }
   initialize();
+  {% for x in ruta.calle_set.all %}
+  google.maps.event.trigger(map, 'click', {
+        latLng: new google.maps.LatLng({{ x.lat | unlocalize }}, {{ x.lng | unlocalize }})
+    });
+
+  {% endfor %}
 </script>
 {% endblock %}

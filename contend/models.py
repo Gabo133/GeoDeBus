@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from contend.choices import choice_dv
+from django.core.exceptions import ObjectDoesNotExist
 # Create your models here.
 
 # class UserProfile(models.Model):
@@ -34,7 +35,7 @@ class Conductor(models.Model):
     def getRelacionConBus(self):
         try:
             return self.conductorbus
-        except:
+        except ObjectDoesNotExist:
             return None
 
     def setHabilitado(self, habilitado):
@@ -70,12 +71,22 @@ class Bus(models.Model):
     def getRelacionConBus(self):
         try:
             return self.conductorbus
-        except:
+        except ObjectDoesNotExist:
             return None
 
     def setHabilitado(self, habilitado):
         self.habilitado = habilitado
         self.save()
+
+    def getRuta(self):
+        try:
+            return self.busruta.ruta
+        except ObjectDoesNotExist:
+            return None
+    
+    def setRuta(self, ruta):
+        rutaObj = Ruta.objects.get(pk=ruta)
+        return BusRuta.objects.create(bus=self, ruta=rutaObj)
 
 
 class Gps(models.Model):
@@ -97,6 +108,7 @@ class BusRuta(models.Model):
 
 
 class Ruta(models.Model):
+    empresa = models.ForeignKey("Empresa", on_delete=models.CASCADE)
     nombre = models.CharField(max_length=50)
     latInicial = models.FloatField()
     lngInicial = models.FloatField()
@@ -113,6 +125,10 @@ class Ruta(models.Model):
 
     def __str__(self):
         return "Nombre: %s, LatIni: %s, LngIni: %s, LatFinal: %s, LngFinal: %s" % (self.nombre, self.latInicial, self.lngInicial, self.latFinal, self.lngFinal)
+    
+    def reasignarCalle(self):
+        self.calle_set.all().delete()
+        return
 
 
 class Calle(models.Model):

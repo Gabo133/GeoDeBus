@@ -21,12 +21,14 @@
                             <div class="form-group">
                                 <label class="control-label mb-1">Nombre</label>
                                  {{formConductor.nombre}}
+                                 <small class="form-text text-muted"><span class="red">{{formConductor.errors.nombre.as_text }}</span></small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group">
                                 <label class="control-label mb-1">Apellido</label>
                                  {{formConductor.apellido}}
+                                 <small class="form-text text-muted"><span class="red">{{formConductor.errors.apellido.as_text }}</span></small>
                             </div>
                         </div>
                     </div>
@@ -35,18 +37,21 @@
                             <div class="form-group">
                                 <label class="control-label mb-1">Rut</label>
                                 {{formConductor.rut}}
+                                <small class="form-text text-muted"><span class="red">{{formConductor.errors.rut.as_text }}</span></small>
                             </div>
                         </div>
                         <div class="col-2">
                             <div class="form-group">
                                 <label class="control-label mb-1">Dv</label>
                                 {{formConductor.dv}}
+                                <small class="form-text text-muted"><span class="red">{{formConductor.errors.dv.as_text }}</span></small>
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="form-group">
                                 <label class="control-label mb-1">Fecha Nacimiento</label>
                                 {{formConductor.fechaNacimiento}}
+                                <small class="form-text text-muted"><span class="red">{{formConductor.errors.fechaNacimiento.as_text }}</span>&nbspAño-Mes-Dia</small>
                             </div>
                         </div>
                     </div>
@@ -55,18 +60,21 @@
                             <div class="form-group">
                                 <label class="control-label mb-1">Dirección</label>
                                 {{formConductor.direccion}}
+                                <small class="form-text text-muted"><span class="red">{{formConductor.errors.direccion.as_text }}</span></small>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-group">
                                 <label class="control-label mb-1">Teléfono</label>
                                 {{formConductor.telefono}}
+                                <small class="form-text text-muted"><span class="red">{{formConductor.errors.telefono.as_text }}</span></small>
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-group">
                                 <label class="control-label mb-1">Fecha Vencimiento</label>
                                 {{formConductor.fechaVencimiento}}
+                                <small class="form-text text-muted"><span class="red">{{formConductor.errors.fechaVencimiento.as_text }}</span>&nbspAño-Mes-Dia</small>
                             </div>
                         </div>
                     </div>
@@ -83,4 +91,9 @@
 </div>
 {% endblock %}
 {% block JavaScript %}
+<script src="{% static 'vendor/mask/dist/jquery.mask.min.js' %}"></script>
+<script>
+    $('#id_fechaNacimiento').mask("9999-99-99", { placeholder: 'YYYY-MM-DD' });
+    $('#id_fechaVencimiento').mask("9999-99-99", { placeholder: 'YYYY-MM-DD' });
+</script>
 {% endblock %}

@@ -8,6 +8,18 @@
     .select2-search__field {
         width: 100% !important;
     }
+    .modal-dialog {
+        min-height: calc(100vh - 60px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow: auto;
+    }
+    @media(max-width: 768px) {
+        .modal-dialog {
+            min-height: calc(100vh - 20px);
+        }
+    }
 </style>
 {% endblock %} 
 {% block Content %}
@@ -91,6 +103,7 @@
                             <div class="form-group">
                                 <label class="control-label mb-1">Fecha Nacimiento</label>
                                 {{formConductor.fechaNacimiento}}
+                                <small class="form-text text-muted">Año-Mes-Dia</small>
                             </div>
                         </div>
                     </div>
@@ -109,15 +122,20 @@
                         </div>
                         <div class="col-4">
                             <div class="form-group">
-                                <label class="control-label mb-1">Teléfono</label>
+                                <label class="control-label mb-1">Fecha vencimiento revisión</label>
                                 {{formConductor.fechaVencimiento}}
+                                <small class="form-text text-muted">Año-Mes-Dia</small>
                             </div>
                         </div>
                     </div>
                     <div>
-                        <button id="payment-button" type="submit" class="btn btn-lg btn-info btn-block">
+                        <button id="editarConductor" type="button" class="btn btn-lg btn-info btn-block">
                             <i class="fa fa-user fa-lg"></i>&nbsp;
                             <span id="payment-button-amount">Editar Conductor</span>
+                        </button>
+                        <button id="guardarConductor" type="submit" class="btn btn-lg btn-info btn-block">
+                            <i class="fa fa-pencil-alt fa-lg"></i>&nbsp;
+                            <span id="payment-button-amount">Guardar</span>
                         </button>
                     </div>
                 </form>
@@ -172,6 +190,7 @@
 {% endblock %}
 {% block JavaScript %} 
 <script type="text/javascript" src="{% static 'vendor/datatable/datatables.min.js' %}"></script>
+<script src="{% static 'vendor/mask/dist/jquery.mask.min.js' %}"></script>
 <script src="{% static 'vendor/select2/select2.min.js' %}"></script>
 <script>
     var conductor;
@@ -226,6 +245,8 @@
         "iDisplayLength": 10,
     });
     $('#tableConductor_wrapper').addClass('m-b-15');
+    $('#id_fechaNacimiento').mask("9999-99-99", { placeholder: 'YYYY-MM-DD' });
+    $('#id_fechaVencimiento').mask("9999-99-99", { placeholder: 'YYYY-MM-DD' });
     $('#id_serial').prop('disabled', true);
     $(document).on('click', '.deshabilitar', function () {
         button = $(this);
@@ -269,18 +290,32 @@
             },
             success: function (data) {
                 conductor = pk;
-                $('#nombreFormularioModal').html('Rut/Nombre del conductor: <b>' + data.rut + '-' + data.dv + '/' + data.nombre + ' ' + data.apellido + '</b>')
-                $('#id_nombre').val(data.nombre);
-                $('#id_apellido').val(data.apellido);
-                $('#id_rut').val(data.rut);
-                $('#id_dv').val(data.dv);
-                $('#id_fechaVencimiento').val(data.fechaVencimiento);
-                $('#id_direccion').val(data.direccion);
-                $('#id_telefono').val(data.telefono);
-                $('#id_fechaNacimiento').val(data.fechaNacimiento);
+                $('#guardarConductor').hide();
+                $('#editarConductor').show();
+                $('#nombreFormularioModal').html('Rut/Nombre del conductor: <b>' + data.rut + '-' + data.dv + '/' + data.nombre + ' ' + data.apellido + '</b>');
+                $('#id_nombre').val(data.nombre).prop('disabled', true);
+                $('#id_apellido').val(data.apellido).prop('disabled', true);
+                $('#id_rut').val(data.rut).prop('disabled', true);
+                $('#id_dv').val(data.dv).prop('disabled', true);
+                $('#id_fechaVencimiento').val(data.fechaVencimiento).prop('disabled', true);
+                $('#id_direccion').val(data.direccion).prop('disabled', true);
+                $('#id_telefono').val(data.telefono).prop('disabled', true);
+                $('#id_fechaNacimiento').val(data.fechaNacimiento).prop('disabled', true);
                 $('#modalWindow').trigger('click');
             },
         });
+    });
+    $("#editarConductor").on('click', function () {
+        $('#guardarConductor').show();
+        $('#editarConductor').hide();
+        $('#id_nombre').prop('disabled', false);
+        $('#id_apellido').prop('disabled', false);
+        $('#id_rut').prop('disabled', false);
+        $('#id_dv').prop('disabled', false);
+        $('#id_fechaVencimiento').prop('disabled', false);
+        $('#id_direccion').prop('disabled', false);
+        $('#id_telefono').prop('disabled', false);
+        $('#id_fechaNacimiento').prop('disabled', false);
     });
     $(document).on('click', '.asignar', function(){
         pk = $(this).parent().data('pk');
