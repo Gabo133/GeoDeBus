@@ -1,7 +1,9 @@
+{% load static %}
 <aside class="menu-sidebar d-none d-lg-block">
     <div class="logo">
-        <a href="#">
-            <img src="" alt="GeoDeBus" />
+        <a href="{% url 'index' %}">
+            <img src="{% static 'images/geodb.png' %}" style="height: 50px;" alt="GeoDeBus" />
+            <span>GeoDeBus</span>
         </a>
     </div>
     <div class="menu-sidebar__content js-scrollbar1">

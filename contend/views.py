@@ -10,8 +10,7 @@ from django.db import connections
 import MySQLdb
 from time import sleep
 from contend.getest import vehiculo1, vehiculo2
-
-# Create your views here.
+from django.contrib.auth.decorators import login_required
 
 
 def ejemploBus(request):
@@ -21,17 +20,21 @@ def ejemploBus(request):
                          db="GEODB")
     cur = db.cursor()
     for x, i in zip(vehiculo1, vehiculo2):
-        cur.execute("UPDATE contend_gps SET lat=%s, lng=%s WHERE serial='%s' " % (x[0], x[1], '0111'))
-        cur.execute("UPDATE contend_gps SET lat=%s, lng=%s WHERE serial='%s' " % (i[0], i[-1], '44444'))
+        cur.execute("UPDATE contend_gps SET lat=%s, lng=%s WHERE serial='%s' " % (
+            x[0], x[1], '0111'))
+        cur.execute("UPDATE contend_gps SET lat=%s, lng=%s WHERE serial='%s' " % (
+            i[0], i[-1], '44444'))
         db.commit()
         sleep(3)
     db.close()
     return JsonResponse({})
 
 
+@login_required(redirect_field_name='auth_login')
 def index(request):
     data = {}
-    data['gpsBus'] = Bus.objects.filter(empresa=request.user.empresa, habilitado=True)
+    data['gpsBus'] = Bus.objects.filter(
+        empresa=request.user.empresa, habilitado=True)
     if request.POST:
         if request.POST['action'] == 'update':
             localizacion = []
@@ -43,12 +46,16 @@ def index(request):
             return JsonResponse({'localizacion': localizacion})
     template_name = "index.html"
     data['totalBus'] = Bus.objects.filter(empresa=request.user.empresa).count()
-    data['totalConductor'] = Conductor.objects.filter(empresa=request.user.empresa).count()
-    data['enRuta'] = Bus.objects.filter(empresa=request.user.empresa, estado=True).count()
-    data['totalRuta'] = Ruta.objects.filter(empresa=request.user.empresa).count()
+    data['totalConductor'] = Conductor.objects.filter(
+        empresa=request.user.empresa).count()
+    data['enRuta'] = Bus.objects.filter(
+        empresa=request.user.empresa, estado=True).count()
+    data['totalRuta'] = Ruta.objects.filter(
+        empresa=request.user.empresa).count()
     return render(request, template_name, data)
 
 
+@login_required(redirect_field_name='auth_login')
 def bus(request):
     if request.method == 'POST':
         if request.POST['action'] == 'datatable':
@@ -143,6 +150,7 @@ def bus(request):
     return render(request, template_name, {'formBus': formBus})
 
 
+@login_required(redirect_field_name='auth_login')
 def agregarBus(request):
     data = {}
     data['formBus'] = BusForm()
@@ -161,6 +169,7 @@ def agregarBus(request):
     return render(request, template_name, data)
 
 
+@login_required(redirect_field_name='auth_login')
 def conductor(request):
     if request.method == 'POST':
         if request.POST['action'] == 'datatable':
@@ -259,6 +268,7 @@ def conductor(request):
     return render(request, template_name, {'formConductor': formConductor})
 
 
+@login_required(redirect_field_name='auth_login')
 def agregarConductor(request):
     data = {}
     data['formConductor'] = ConductorForm()
@@ -273,6 +283,7 @@ def agregarConductor(request):
     return render(request, template_name, data)
 
 
+@login_required(redirect_field_name='auth_login')
 def ruta(request):
     if request.method == 'POST':
         if request.POST['action'] == 'datatable':
@@ -320,6 +331,7 @@ def ruta(request):
     return render(request, template_name, {})
 
 
+@login_required(redirect_field_name='auth_login')
 def agregarRuta(request):
     if request.POST:
         calleInicial = request.POST.getlist('calle[]')[0]
@@ -343,6 +355,7 @@ def agregarRuta(request):
     return render(request, template_name, {'formRuta': formRuta})
 
 
+@login_required(redirect_field_name='auth_login')
 def editarRuta(request, idRuta):
     rutaObj = Ruta.objects.get(pk=idRuta)
     if request.POST:
