@@ -51,6 +51,7 @@ class Conductor(models.Model):
             self.eliminarBus()
         return ConductorBus.objects.create(bus=Bus.objects.get(patente=patente),
                                            conductor=self)
+
     def getNombreCompleto(self):
         return '%s %s' % (self.nombre, self.apellido)
 
@@ -85,11 +86,11 @@ class Bus(models.Model):
             return self.busruta.ruta
         except ObjectDoesNotExist:
             return None
-    
+
     def setRuta(self, ruta):
         rutaObj = Ruta.objects.get(pk=ruta)
         return BusRuta.objects.create(bus=self, ruta=rutaObj)
-    
+
     def getNombreConductor(self):
         try:
             return self.conductorbus.conductor.getNombreCompleto()
@@ -133,7 +134,7 @@ class Ruta(models.Model):
 
     def __str__(self):
         return "Nombre: %s, LatIni: %s, LngIni: %s, LatFinal: %s, LngFinal: %s" % (self.nombre, self.latInicial, self.lngInicial, self.latFinal, self.lngFinal)
-    
+
     def reasignarCalle(self):
         self.calle_set.all().delete()
         return
