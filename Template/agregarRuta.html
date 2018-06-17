@@ -1,0 +1,114 @@
+{% extends 'Partials/_Base.html' %}
+{% load static %}
+{% block Titulo %}
+{% endblock %}
+{% block Style %}
+<style media="screen">
+    #map {
+      height: 500px;
+    }
+</style>
+{% endblock %}
+{% block Content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><i class="fas fa-bus"></i> Información del bus</div>
+            <div class="card-body">
+                <div class="card-title">
+                    <h3 class="text-center title-2">Rutas</h3>
+                    <form id="formRuta">
+                      <div class="form-group">
+                          <label class="control-label mb-1">Nombre de la Ruta</label>
+                          {{formRuta.nombre}}
+                      </div>
+                      <div class="col-12 m-b-2">
+                        <h3>Instrucciones</h3>
+                        <ul>
+                            <li>Busque en el mapa la hubicación inicial de la Ruta a agregar.</li>
+                            <li>Haz click en el mapa para ir agregando puntos, cada punto se conectará con el último punto agregado.</li>
+                            <li>Se recomienda agregar puntos por cada una de las calles que utiliza la ruta.</li>
+                        </ul>
+                        <button class="btn btn-warning" type="button" id="REC">Eliminar último camino</button>
+                        <button class="btn btn-success" type="submit" id="Add">Agregar Ruta</button>
+                      </div>
+                    </form>
+                </div>
+                <hr>
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block JavaScript %}
+<script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDDWNKzllkFkkJdm6JeA5iAWK9rpZUZr2Q&callback=initMap%22%3E"></script>
+<script type="text/javascript">
+  var map, polyline, markers = new Array();
+  var listaCalle = []
+  $('#REC').on('click', function(){
+      removePoint(markers[markers.length - 1]);
+  });
+  $('#formRuta').submit(function(){
+    if (listaCalle.length < 2){
+        alert("Debe colocar dos puntos como mínimo");
+        return false;
+    } 
+    $.ajax({
+        url: "{% url 'agregarRuta' %}",
+        type: "POST",
+        data: {
+            'action': "addCalle",
+            'nombre': $('#id_nombre').val(),
+            'calle[]': listaCalle,
+            'csrfmiddlewaretoken': getCookie('csrftoken'),
+        },
+        success: function (data) {
+            window.location.href = "{% url 'ruta' %}";
+        },
+    });
+    return false;
+  });
+  function initialize() {
+      var mapOptions = {
+          zoom: 12,
+          center: new google.maps.LatLng(-33.448890, -70.669265),
+          mapTypeId: google.maps.MapTypeId.TERRAIN
+      };
+      map = new google.maps.Map(document.getElementById('map'),
+          mapOptions);
+      polyline = new google.maps.Polyline({
+          strokeColor: 'red',
+          strokeWeight: 1,
+          map: map
+      });
+      google.maps.event.addListener(map, 'click', function (event) {
+          addPoint(event.latLng);
+      });
+  }
+  function removePoint(marker) {
+      for (var i = 0; i < markers.length; i++) {
+          if (markers[i] === marker) {
+              markers[i].setMap(null);
+              markers.splice(i, 1);
+              polyline.getPath().removeAt(i);
+              listaCalle.pop();
+          }
+      }
+  }
+
+  function addPoint(latlng) {
+      var marker = new google.maps.Marker({
+          position: latlng,
+          map: map
+      });
+      markers.push(marker);
+      listaCalle.push([latlng.lat(), latlng.lng()]);
+      polyline.getPath().setAt(markers.length - 1, latlng);
+      google.maps.event.addListener(marker, 'click', function (event) {
+          removePoint(marker);
+      });
+  }
+  initialize();
+</script>
+{% endblock %}

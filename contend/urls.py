@@ -1,10 +1,14 @@
-from django.contrib import admin
-from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
+from django.urls import path
 from contend import views
-urlpatterns = [
-    
-    path('', views.index ,name="index")
 
+urlpatterns = [
+    path('', views.index, name="index"),
+    path('bus', views.bus, name="bus"),
+    path('agregarBus', views.agregarBus, name="agregarBus"),
+    path('conductor', views.conductor, name="conductor"),
+    path('agregarConductor', views.agregarConductor, name="agregarConductor"),
+    path('ruta', views.ruta, name="ruta"),
+    path('agregarRuta', views.agregarRuta, name="agregarRuta"),
+    path('editarRuta/<int:idRuta>/', views.editarRuta, name="editarRuta"),
+    path('ejemploBus', views.ejemploBus, name="ejemploBus"),
 ]

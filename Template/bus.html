@@ -1,0 +1,327 @@
+{% extends 'Partials/_Base.html' %} 
+{% load static %}
+{% block Titulo %} 
+{% endblock %} 
+{% block Style %} 
+<link rel="stylesheet" type="text/css" href="{% static 'css/datatables.min.css' %}" />
+<style>
+    .select2-search__field {
+        width: 100% !important;
+    }
+    .modal-dialog {
+        min-height: calc(100vh - 60px);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        overflow: auto;
+    }
+    @media(max-width: 768px) {
+        .modal-dialog {
+            min-height: calc(100vh - 20px);
+        }
+    }
+</style>
+{% endblock %} 
+{% block Content %}
+<div class="row">
+    <div class="col">
+        <!-- USER DATA-->
+        <div class="user-data m-b-30">
+            <h3 class="title-3 m-b-30">
+                <i class="fas fa-bus"></i>Buses Agregados
+                <a href="{% url 'agregarBus' %}" class="pull-right">
+                    <button class="btn-sm btn-success"><i class="fas fa-plus"></i>Agregar Bus</button>
+                </a>
+            </h3>
+            <div class="table-responsive">
+                <table class="table table-borderless" id="tableBus">
+                    <thead>
+                        <tr>
+                            <td>Patente</td>
+                            <td>Condutor</td>
+                            <td>Estado</td>
+                            <td>Acción</td>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+        <!-- END USER DATA-->
+    </div>
+</div>
+<button id="modalWindow" style="display: none" type="button" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#largeModal"></button>
+<button id="modalAsignar" style="display: none" type="button" class="btn btn-secondary mb-1" data-toggle="modal" data-target="#AsignarModal"></button>
+{% endblock %} 
+{% block Modal %}
+<div class="modal fade" id="largeModal" tabindex="-1" role="dialog" aria-labelledby="largeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="largeModalLabel">
+                    <i class="fas fa-bus"></i> Información del bus</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="card-title">
+                    <h3 class="text-center title-2" id="nombreFormularioModal">Formulario</h3>
+                </div>
+                <hr>
+                <form id="formModal">
+                    <div class="form-group">
+                        <label class="control-label mb-1"><b>Patente</b></label>
+                        {{formBus.patente}}
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label mb-1"><b>Modelo</b></label>
+                        {{formBus.modelo}}
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label mb-1"><b>Color</b></label>
+                        {{formBus.color}}
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="control-label mb-1"><b>Vencimiento Revisión Técnica</b></label>
+                                {{formBus.fechaVencimiento}}
+                                <small class="form-text text-muted">Año-Mes-Dia</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-group">
+                                <label class="control-label mb-1"><b>Serial GPS</b></label>
+                                {{formBus.serial}}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <button id="editarBus" type="button" class="btn btn-lg btn-info btn-block">
+                            <i class="fa fa-bus fa-lg"></i>&nbsp;
+                            <span id="payment-button-amount">Editar Bus</span>
+                        </button>
+                        <button id="guardarBus" type="submit" class="btn btn-lg btn-info btn-block">
+                            <i class="fa fa-pencil-alt fa-lg"></i>&nbsp;
+                            <span id="payment-button-amount">Guardar</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeModal" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="AsignarModal" tabindex="-1" role="dialog" aria-labelledby="largeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="largeModalLabel">
+                    <i class="fas fa-bus"></i> Asignar Ruta</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="form-group">
+                    <label for="">Seleccionar Ruta</label>
+                    <select id="selectRuta" class="form-control"></select>
+                </div>
+                <button id="asignarRuta" class="btn btn-success" type="button">Asignar Ruta</button>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="closeModal" data-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block JavaScript %} 
+<script type="text/javascript" src="{% static 'vendor/datatable/datatables.min.js' %}"></script>
+<script src="{% static 'vendor/mask/dist/jquery.mask.min.js' %}"></script>
+<script src="{% static 'vendor/select2/select2.min.js' %}"></script>
+<script>
+    var bus;
+    var tablaBus = 
+    $('#tableBus').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+            "url": "{% url 'bus' %}",
+            "type": "POST",
+            "data": {
+                "csrfmiddlewaretoken": getCookie('csrftoken'),
+                "action": 'datatable'
+            },
+        },
+        "columns": [
+            { "data": "Patente" },
+            { "data": "Conductor" },
+            { "data": "Estado" },
+            { "data": "Accion" },
+        ],
+        "columnDefs": [{
+                "className": 'text-center',
+                "targets": [3],
+            }],
+        language : {
+            "sProcessing": "Procesando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "No se encontraron resultados",
+            "sEmptyTable": "Ningún dato disponible en esta tabla",
+            "sInfo": "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando registros del 0 al 0 de un total de 0 registros",
+            "sInfoFiltered": "(filtrado de un total de _MAX_ registros)",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar:",
+            "sUrl": "",
+            "sInfoThousands": ",",
+            "sLoadingRecords": "Cargando...",
+            "oPaginate": {
+                "sFirst": "Primero",
+                "sLast": "Último",
+                "sNext": "Siguiente",
+                "sPrevious": "Anterior"
+            },
+            "oAria": {
+                "sSortAscending": ": Activar para ordenar la columna de manera ascendente",
+                "sSortDescending": ": Activar para ordenar la columna de manera descendente"
+            }
+        },
+        "iDisplayLength": 10,
+    });
+    $('#tableBus_info').addClass('m-b-15');
+    $('#id_fechaVencimiento').mask("9999-99-99", { placeholder: 'YYYY-MM-DD' });
+    $('#id_serial').prop('disabled', true);
+    $(document).on('click', '.deshabilitar', function(){
+        button = $(this);
+        $.ajax({
+            url: "{% url 'bus' %}",
+            type: "POST",
+            data: {
+                pk: button.parent().data('pk'),
+                action: "deshabilitar",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                tablaBus.draw();
+            },
+        });
+    });
+    $(document).on('click', '.habilitar', function(){
+        button = $(this);
+        $.ajax({
+            url: "{% url 'bus' %}",
+            type: "POST",
+            data: {
+                pk: button.parent().data('pk'),
+                action: "habilitar",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                tablaBus.draw();
+            },
+        });
+    });
+    $(document).on('click', '.editar', function(){
+        pk = $(this).parent().data('pk');
+        $.ajax({
+            url: "{% url 'bus' %}",
+            type: "POST",
+            data: {
+                pk: pk,
+                action: "ver_editar",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                bus = pk;
+                $('#editarBus').show();
+                $('#guardarBus').hide();
+                $('#nombreFormularioModal').html('Patente del Bus: <b>' + pk + '</b>')
+                $('#id_patente').val(pk).prop('disabled', true);
+                $('#id_conductor').val(data.conductor).prop('disabled', true);
+                $('#id_modelo').val(data.modelo).prop('disabled', true);
+                $('#id_color').val(data.color).prop('disabled', true);
+                $('#id_fechaVencimiento').val(data.fechaVencimiento).prop('disabled', true);
+                $('#id_serial').val(data.serial).prop('disabled', true);
+                $('#modalWindow').trigger('click');
+            },
+        });
+    });
+    $("#editarBus").on('click', function(){
+        $('#guardarBus').show();
+        $('#editarBus').hide();
+        $('#id_conductor').prop('disabled', false);
+        $('#id_modelo').prop('disabled', false);
+        $('#id_color').prop('disabled', false);
+        $('#id_fechaVencimiento').prop('disabled', false);
+    });
+    $(document).on('click', '.asignar', function () {
+        pk = $(this).parent().data('pk');
+        $.ajax({
+            url: "{% url 'bus' %}",
+            type: "POST",
+            data: {
+                pk: pk,
+                action: "verRuta",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                bus = pk;
+                $('#selectRuta').empty().trigger('change');
+                $('#selectRuta').select2({
+                    placeholder: "Selecciona una ruta",
+                    data: data['rutas'],
+                });
+                $('#selectRuta').val(data['seleccionado']).trigger('change');
+                $('#modalAsignar').trigger('click');
+            },
+        });
+    })
+    $('#formModal').submit(function () {
+        formulario = new FormData();
+        datos = $(this).serializeArray();
+        $.each(datos, function (key, input) {
+            formulario.append(input.name, input.value);
+        });
+        formulario.append('action', 'editar');
+        formulario.append("csrfmiddlewaretoken", getCookie('csrftoken'));
+        formulario.append("pk", bus);
+        $.ajax({
+            url: '{% url "bus" %}',
+            type: 'POST',
+            cache: false,
+            contentType: false,
+            processData: false,
+            data: formulario,
+            success: function (data) {
+                if(data.Respuesta){
+                    tablaBus.draw();
+                    $('#closeModal').trigger('click');
+                }else{
+                    
+                }
+            },
+        });
+        return false;
+    });
+    $('#asignarRuta').on('click', function () {
+        $.ajax({
+            url: "{% url 'bus' %}",
+            type: "POST",
+            data: {
+                pk: pk,
+                pkRuta: $('#selectRuta').val(),
+                action: "asignarRuta",
+                csrfmiddlewaretoken: getCookie('csrftoken'),
+            },
+            success: function (data) {
+                $('#AsignarModal').trigger('click');
+                tablaBus.draw();
+            },
+        });
+    });
+</script>
+{% endblock %}
