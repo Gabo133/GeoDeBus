@@ -6,13 +6,46 @@ from django.shortcuts import redirect
 from contend.forms import BusForm, SerialGpsForm, EditarBusForm, ConductorForm, RutaForm
 from django.db.models import Q
 from json import dumps
+from django.db import connections
+import MySQLdb
+from time import sleep
+from contend.getest import vehiculo1, vehiculo2
 
 # Create your views here.
 
 
+def ejemploBus(request):
+    db = MySQLdb.connect(host="localhost",
+                         user="root",
+                         passwd="1234",
+                         db="GEODB")
+    cur = db.cursor()
+    for x, i in zip(vehiculo1, vehiculo2):
+        cur.execute("UPDATE contend_gps SET lat=%s, lng=%s WHERE serial='%s' " % (x[0], x[1], '0111'))
+        cur.execute("UPDATE contend_gps SET lat=%s, lng=%s WHERE serial='%s' " % (i[0], i[-1], '44444'))
+        db.commit()
+        sleep(3)
+    db.close()
+    return JsonResponse({})
+
+
 def index(request):
-    template_name = "index.html"
     data = {}
+    data['gpsBus'] = Bus.objects.filter(empresa=request.user.empresa, habilitado=True)
+    if request.POST:
+        if request.POST['action'] == 'update':
+            localizacion = []
+            cont = 1
+            for x in data['gpsBus']:
+                localizacion.append(
+                    [x.patente, x.serialGps.lat, x.serialGps.lng, cont, x.getNombreConductor()])
+                cont += 1
+            return JsonResponse({'localizacion': localizacion})
+    template_name = "index.html"
+    data['totalBus'] = Bus.objects.filter(empresa=request.user.empresa).count()
+    data['totalConductor'] = Conductor.objects.filter(empresa=request.user.empresa).count()
+    data['enRuta'] = Bus.objects.filter(empresa=request.user.empresa, estado=True).count()
+    data['totalRuta'] = Ruta.objects.filter(empresa=request.user.empresa).count()
     return render(request, template_name, data)
 
 

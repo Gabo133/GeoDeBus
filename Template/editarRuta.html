@@ -51,8 +51,6 @@
       removePoint(markers[markers.length - 1]);
   });
   $('#formRuta').submit(function(){
-      console.log("aaa");
-      
     if (listaCalle.length < 2){
         alert("Debe colocar dos puntos como mínimo");
         return false;
@@ -86,6 +84,7 @@
       });
       google.maps.event.addListener(map, 'click', function (event) {
           addPoint(event.latLng);
+          console.log(event.latLng.lat(), event.latLng.lng());          
       });
   }
   function removePoint(marker) {

@@ -51,6 +51,8 @@ class Conductor(models.Model):
             self.eliminarBus()
         return ConductorBus.objects.create(bus=Bus.objects.get(patente=patente),
                                            conductor=self)
+    def getNombreCompleto(self):
+        return '%s %s' % (self.nombre, self.apellido)
 
 
 class ConductorBus(models.Model):
@@ -87,12 +89,18 @@ class Bus(models.Model):
     def setRuta(self, ruta):
         rutaObj = Ruta.objects.get(pk=ruta)
         return BusRuta.objects.create(bus=self, ruta=rutaObj)
+    
+    def getNombreConductor(self):
+        try:
+            return self.conductorbus.conductor.getNombreCompleto()
+        except ObjectDoesNotExist:
+            return 'Sin Asignar'
 
 
 class Gps(models.Model):
     serial = models.CharField(max_length=20, primary_key=True)
-    lat = models.FloatField(default=0)
-    lng = models.FloatField(default=0)
+    lat = models.FloatField(default=-33.448890)
+    lng = models.FloatField(default=-70.669265)
 
 
 class Historial(models.Model):

@@ -10,4 +10,5 @@ urlpatterns = [
     path('ruta', views.ruta, name="ruta"),
     path('agregarRuta', views.agregarRuta, name="agregarRuta"),
     path('editarRuta/<int:idRuta>/', views.editarRuta, name="editarRuta"),
+    path('ejemploBus', views.ejemploBus, name="ejemploBus"),
 ]
