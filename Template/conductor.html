@@ -1,6 +1,7 @@
 {% extends 'Partials/_Base.html' %} 
 {% load static %}
 {% block Titulo %} 
+GeoDeBus - Lista de Conductores
 {% endblock %} 
 {% block Style %} 
 <link rel="stylesheet" type="text/css" href="{% static 'css/datatables.min.css' %}" />
@@ -381,6 +382,7 @@
             },
         });
         return false;
-    })
+    });
+    $('#mantenedorConductor').addClass('active has-sub');
 </script>
 {% endblock %}

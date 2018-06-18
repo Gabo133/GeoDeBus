@@ -1,5 +1,5 @@
 from django.contrib import admin
-from contend.models import Empresa, Conductor, ConductorBus, Bus, Gps, Historial, Ruta, Calle
+from contend.models import Empresa, Conductor, ConductorBus, Bus, Gps, Historial, Ruta, Calle, BusRuta
 # Register your models here.
 
 
@@ -40,4 +40,9 @@ class CalleAdmin(admin.ModelAdmin):
 
 @admin.register(ConductorBus)
 class ConductorBusAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(BusRuta)
+class BusRutaBusAdmin(admin.ModelAdmin):
     pass

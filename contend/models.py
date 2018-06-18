@@ -89,6 +89,10 @@ class Bus(models.Model):
 
     def setRuta(self, ruta):
         rutaObj = Ruta.objects.get(pk=ruta)
+        try:
+            self.busruta.delete()
+        except ObjectDoesNotExist:
+            pass
         return BusRuta.objects.create(bus=self, ruta=rutaObj)
 
     def getNombreConductor(self):

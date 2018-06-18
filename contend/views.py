@@ -13,7 +13,8 @@ from contend.getest import vehiculo1, vehiculo2
 from django.contrib.auth.decorators import login_required
 
 
-def ejemploBus(request):
+def ejemploBus(request, A, B):
+    print(A, B)
     db = MySQLdb.connect(host="localhost",
                          user="root",
                          passwd="1234",
@@ -21,9 +22,9 @@ def ejemploBus(request):
     cur = db.cursor()
     for x, i in zip(vehiculo1, vehiculo2):
         cur.execute("UPDATE contend_gps SET lat=%s, lng=%s WHERE serial='%s' " % (
-            x[0], x[1], '0111'))
+            x[0], x[1], A))
         cur.execute("UPDATE contend_gps SET lat=%s, lng=%s WHERE serial='%s' " % (
-            i[0], i[-1], '44444'))
+            i[0], i[-1], B))
         db.commit()
         sleep(3)
     db.close()

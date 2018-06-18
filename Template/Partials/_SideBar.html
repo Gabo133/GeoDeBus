@@ -9,22 +9,22 @@
     <div class="menu-sidebar__content js-scrollbar1">
         <nav class="navbar-sidebar">
             <ul class="list-unstyled navbar__list">
-                <li class="active has-sub">
+                <li id="index">
                     <a class="js-arrow" href="{% url 'index' %}">
                         <i class="fas fa-home"></i>Inicio
                     </a>
                 </li>
-                <li>
+                <li id="mantenedorBus">
                     <a href="{% url 'bus' %}">
                         <i class="fas fa-bus"></i>Mantenedor Bus
                     </a>
                 </li>
-                <li>
+                <li id="mantenedorConductor">
                     <a href="{% url 'conductor' %}">
                         <i class="fas fa-user"></i>Mantenedor Condutor
                     </a>
                 </li>
-                <li>
+                <li id="mantenedorRuta">
                     <a href="{% url 'ruta' %}">
                         <i class="fas fa-tachometer-alt"></i>Mantenedor Rutas
                     </a>

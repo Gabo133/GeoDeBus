@@ -18,7 +18,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('contend', include('contend.urls'), name="Contend"),
+    path('contend/', include('contend.urls'), name="Contend"),
     path('', include('auth_geodb.urls'), name="login"),
 
 
